@@ -8,7 +8,7 @@ const lambda_values = [0., 1e-9, 1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1,
 
 # sampling schedules for training data
 const sampling_schedules = [
-    (5, 20:10:100),
+  #  (5, 20:10:100),
     (10, 20:10:100),
     (20, 40:20:100)
 ]
@@ -100,11 +100,13 @@ for (step_size, end_times) in sampling_schedules
       # Save model parameters, training and validation errors
       parameters = [r[1] for r in results]
       training_error = [r[2] for r in results]
+      validation_error = [r[3] for r in results]
       
       jldsave(
           "michaelis-menten/saved_runs/michaelismenten_$(lambd)_$(step_size)_$(end_time).jld2";
           parameters=parameters,
-          training_error=training_error)
+          training_error=training_error,
+          validation_error=validation_error)
     end
   end
 end
