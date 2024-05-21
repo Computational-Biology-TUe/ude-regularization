@@ -1,7 +1,7 @@
 ## SETTINGS
 
 # define number of parallel cores 
-n_cores = 8
+n_cores = 5
 
 # lambda values for regularization
 const lambda_values = [0., 1e-9, 1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1]
