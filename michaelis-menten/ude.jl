@@ -41,8 +41,7 @@ function setup_model_training(m, y, ts, λ, y_val, ts_val)
             println("Optimization successfully finished with objective value of $(res2.objective)")
             validation_loss = michaelismenten_validation(res2.u, (m,y_val,ts_val))
             return res2.u, res2.objective, validation_loss
-       catch e
-            throw(e)
+       catch
             print("Optimization Failed... Resampling...")
             return initial_parameters, NaN, NaN
        end
