@@ -14,10 +14,11 @@ const sampling_schedules = [
 ]
 
 # Number of initial values for optimization
-const n_starting_points = 10
+const n_starting_points = 100
 
 # Define the parameter values
 const initial_p = [0.05, 0.2, 1.1, 0.08]
+
 
 ## END SETTINGS
 
@@ -42,6 +43,7 @@ using JLD2
     using StableRNGs                                                                  # Random number generator
     using WeightInitializers
     using SciMLSensitivity
+    using LineSearches
 
     include("inputs.jl")
     include("ude.jl")
@@ -76,14 +78,19 @@ for (step_size, end_times) in sampling_schedules
       # Create UDE model
       ude_problem = michaelismenten_ude(U, initial_p, data_A, data_B, (0., 100.), snn)
 
-      # Define loss and validation functions 
-      mse_loss = michaelismenten_loss(ude_problem, [data_A, data_B], [[times_A...], [times_B...]])
+      # # Define loss and validation functions 
+      # mse_loss = michaelismenten_loss(ude_problem, [data_A, data_B], [[times_A...], [times_B...]])
 
       # Set the initial parameters of the optimization
       initials = initial_parameters(U, n_starting_points, loc_rng)
 
       # Define the optimization run
-      optimizer = setup_model_training(mse_loss, lambd)
+      optimizer = setup_model_training(
+        ude_problem, 
+        [data_A, data_B], 
+        times_A, lambd, 
+        [val_data_A, val_data_B], 
+        0:0.1:400)
 
       # Optimize for all initial values.
       results = pmap(optimizer, initials)
