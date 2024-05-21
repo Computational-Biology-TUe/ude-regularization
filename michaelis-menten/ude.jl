@@ -3,8 +3,8 @@ function michaelismenten_ude(net, initial_p, data_A, data_B, tspan, snn)
   function michaelismenten_ude!(du, u, p, t, p_true)
       Û = net(u, p.ude, snn)[1]
       A, B = u
-      du[1] = p_true[1].*A .- Û[1]
-      du[2] = Û[1] .- p_true[4].*B;
+      du[1] = p_true[1]*A - Û[1]
+      du[2] = Û[1] - p_true[4]*B;
       nothing
   end
 
@@ -23,25 +23,32 @@ function initial_parameters(net, num, rng)
   initials
 end
 
-function setup_model_training(loss, validation, λ)
+function setup_model_training(loss, λ)
+    adtype = Optimization.AutoForwardDiff()
+    optf = Optimization.OptimizationFunction(loss, adtype)
     function fit_model(initial_parameters)
-
        try
-            adtype = Optimization.AutoZygote()
-            optf = Optimization.OptimizationFunction(loss, adtype)
             optprob = Optimization.OptimizationProblem(optf, initial_parameters, λ)
             res1 = Optimization.solve(optprob, ADAM(0.01), maxiters = 500)
-
+            println("First Stage successfully finished with objective value of $(res1.objective)")
             # Train with BFGS
-            optprob2 = Optimization.OptimizationProblem(optf, res1.minimizer, λ)
+            optprob2 = Optimization.OptimizationProblem(optf, res1.u, λ)
             res2 = Optimization.solve(optprob2, Optim.BFGS(initial_stepnorm=0.01), x_tol=1e-6, f_tol=1e-6, maxiters = 1_000)
-            
-            return res2.minimizer, res2.objective, validation(res2.minimizer, 0.)
+            println("Optimization successfully finished with objective value of $(res2.objective)")
+            return res2.u, res2.objective
        catch
             print("Optimization Failed... Resampling...")
-            return initial_parameters, NaN, NaN
+            return initial_parameters, NaN
        end
     end
+end
+
+function predict(m, p̂, t)
+    _prob = remake(m, tspan = (t[1], t[end]), p = p̂)
+    Array(solve(_prob, Vern7(), saveat = t,
+                abstol=1e-6, reltol=1e-6,
+                sensealg = ForwardDiffSensitivity()
+                ))
 end
 
 function michaelismenten_loss(m, y, ts)
@@ -53,24 +60,16 @@ function michaelismenten_loss(m, y, ts)
       Vector{Int}(indexin(ts[2], times))
   ]
 
-  function predict(p̂, t=times)
-      _prob = remake(m, tspan = (t[1], t[end]), p = p̂)
-      Array(solve(_prob, Vern7(), saveat = t,
-                  abstol=1e-6, reltol=1e-6,
-                  sensealg = ForwardDiffSensitivity()
-                  ))
-  end
-
   function err(p̂, λ)
-      ŷ = predict(p̂)
+      ŷ = predict(m, p̂, times)
       l = 0.
       for i in axes(ŷ, 1)
           pred = ŷ[i, idxs[i]]
           data = y[i][1:length(pred)]
-          l += sum(abs2, data.-pred)
+          l += sum(abs2, data-pred)
       end
 
-      ŷ_reg = predict(p̂, 0:500)
+      ŷ_reg = predict(m, p̂, 0:200)
       l += λ .* sum(abs2, min.(0, ŷ_reg))
 
       return l

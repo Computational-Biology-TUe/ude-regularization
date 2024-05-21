@@ -58,7 +58,7 @@ function get_model_parameters(mglc, glucose_timepoints, mins, insulin_timepoints
   Ib = mins[1][1]
   tspan = (insulin_timepoints[1], insulin_timepoints[end])
   u0 = [Gb, 0.]
-  I = get_insulin_interpolator_fn(mins, insulin_timepoints)
+  I = insulin_interpolator(mins, insulin_timepoints)
   p_init = [3e-4, 3e-4, 3e-4, 1.4, 0.014, 86000., VG, fG, u0[1], Ib]
 
   problem = ODEProblem(make_minimal_model(I), u0, tspan, p_init, sensealg=ForwardDiffSensitivity())

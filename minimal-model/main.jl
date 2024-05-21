@@ -8,6 +8,8 @@ const λ_nonneg = [0., 1e-2, 1e-1, 1., 10., 100.]
 # Number of initial values for optimization
 const n_initials = 100
 
+OVERWRITE = false
+
 ## END SETTINGS
 
 println("Now Starting Minimal Model Experiment.\n\nSettings:\n\tλ_AUC = $(λ_AUC)\n\tλ_nonneg = $(λ_nonneg)\n\tn_starting_points = $(n_initials)")
@@ -90,6 +92,12 @@ glucose_idx = findall(x -> x ∈ glucose_timepoints, save_timepoints)
 for lAUC in λ_AUC
   for lnonneg in λ_nonneg
     println("Running MSE optimizer for lAUC = $(lAUC) and lnonneg = $(lnonneg)")
+
+    if !OVERWRITE && isfile("minimal-model/saved_runs/minimalmodel_$(lAUC)_$(lnonneg).jld2")
+      println("File already exists, skipping.")
+      continue
+    end
+
     lossfn = get_ude_loss(UDEproblem, save_timepoints, mglc, glucose_idx, U, snn, lAUC, lnonneg)
     initials = initial_parameters(U, rng)
     p_estim_init = [ComponentArray(nn = initials()) for _ in 1:n_initials];

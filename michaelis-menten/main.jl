@@ -1,7 +1,7 @@
 ## SETTINGS
 
 # define number of parallel cores 
-n_cores = 6
+n_cores = 8
 
 # lambda values for regularization
 const lambda_values = [0., 1e-9, 1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1]
@@ -14,7 +14,7 @@ const sampling_schedules = [
 ]
 
 # Number of initial values for optimization
-const n_starting_points = 100
+const n_starting_points = 10
 
 # Define the parameter values
 const initial_p = [0.05, 0.2, 1.1, 0.08]
@@ -78,13 +78,12 @@ for (step_size, end_times) in sampling_schedules
 
       # Define loss and validation functions 
       mse_loss = michaelismenten_loss(ude_problem, [data_A, data_B], [[times_A...], [times_B...]])
-      validation = michaelismenten_loss(ude_problem, [val_data_A, val_data_B], [[0:0.1:400...], [0:0.1:400...]])
 
       # Set the initial parameters of the optimization
       initials = initial_parameters(U, n_starting_points, loc_rng)
 
       # Define the optimization run
-      optimizer = setup_model_training(mse_loss, validation, lambd)
+      optimizer = setup_model_training(mse_loss, lambd)
 
       # Optimize for all initial values.
       results = pmap(optimizer, initials)
@@ -94,12 +93,11 @@ for (step_size, end_times) in sampling_schedules
       # Save model parameters, training and validation errors
       parameters = [r[1] for r in results]
       training_error = [r[2] for r in results]
-      validation_error = [r[3] for r in results]
+      
       jldsave(
           "michaelis-menten/saved_runs/michaelismenten_$(lambd)_$(step_size)_$(end_time).jld2";
           parameters=parameters,
-          training_error=training_error,
-          validation_error=validation_error)
+          training_error=training_error)
     end
   end
 end

@@ -33,3 +33,6 @@ Figures_old
 
 # VSCode Settings
 .vscode
+
+#
+*.DS_Store

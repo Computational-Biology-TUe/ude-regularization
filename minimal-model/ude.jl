@@ -50,16 +50,11 @@ function get_ude_loss(UDEproblem, save_timepoints, mglc, glucose_idx, U, snn, λ
     sol = Array(solve(UDEproblem, p=p, saveat=save_timepoints))
     glucose = sol[1,:]
 
-    # Ridge Regression on Neural Net
-    #ridge = 1e-6 * sum(abs2, p.nn)/length(p.nn)
-
     # PI-regularizer
     ra = [U([t], p.nn, snn)[1][1] for t in save_timepoints]
     auc_regularizer = abs(trapz(0:480, ra)-1.) * λ_AUC
     nonnegatives = sum(abs2, min.(0, ra))*λ_nonneg
-    # steady_state_finals = (sol[1,end])^2
 
-    #regularizer = 100*(sum(abs2, min.(0., insulin))+sum(abs2, min.(0., glucose)))
     return sum(abs2, glucose[glucose_idx] .- mglc[:]) + nonnegatives + auc_regularizer
   end
 
