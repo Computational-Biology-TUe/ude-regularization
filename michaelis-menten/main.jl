@@ -4,23 +4,20 @@
 n_cores = 6
 
 # lambda values for regularization
-lambda_values = [0.]# [0., 1e-9, 1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1]
+const lambda_values = [0., 1e-9, 1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1]
 
 # sampling schedules for training data
-# sampling_schedules = [
-#     (5, 20:10:100),
-#     (10, 20:10:100),
-#     (20, 40:20:100)
-# ]
-sampling_schedules = [
-    (5, [100])
+const sampling_schedules = [
+    (5, 20:10:100),
+    (10, 20:10:100),
+    (20, 40:20:100)
 ]
 
 # Number of initial values for optimization
-n_starting_points = 5 #100
+const n_starting_points = 100
 
 # Define the parameter values
-initial_p = [0.05, 0.2, 1.1, 0.08]
+const initial_p = [0.05, 0.2, 1.1, 0.08]
 
 ## END SETTINGS
 

@@ -30,3 +30,6 @@ Figures_old
 
 # Notebooks
 *.ipynb
+
+# VSCode Settings
+.vscode
