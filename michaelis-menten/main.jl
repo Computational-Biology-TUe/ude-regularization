@@ -19,6 +19,8 @@ const n_starting_points = 100
 # Define the parameter values
 const initial_p = [0.05, 0.2, 1.1, 0.08]
 
+# Overwrite existing files
+const OVERWRITE = false
 
 ## END SETTINGS
 
@@ -70,6 +72,11 @@ for (step_size, end_times) in sampling_schedules
       println("Running MSE optimizer for lambda = $(lambd) and end_time = $(end_time)")
       loc_rng = StableRNG(1234)
 
+      if !OVERWRITE && isfile("michaelis-menten/saved_runs/michaelismenten_$(lambd)_$(step_size)_$(end_time).jld2")
+        println("File already exists. Skipping.")
+        continue
+      end
+
       # Simulate the data
       data_A, data_B, times_A, times_B, val_data_A, val_data_B = simulate_inputs(
         initial_p, loc_rng; 
@@ -77,9 +84,6 @@ for (step_size, end_times) in sampling_schedules
       
       # Create UDE model
       ude_problem = michaelismenten_ude(U, initial_p, data_A, data_B, (0., 100.), snn)
-
-      # # Define loss and validation functions 
-      # mse_loss = michaelismenten_loss(ude_problem, [data_A, data_B], [[times_A...], [times_B...]])
 
       # Set the initial parameters of the optimization
       initials = initial_parameters(U, n_starting_points, loc_rng)

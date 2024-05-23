@@ -86,31 +86,4 @@ function michaelismenten_loss(p̂, args)
 
     return l
 end
-
-# function michaelismenten_loss(m, y, ts)
-
-#   # Define a loss function 
-#   times = sort(unique([ts[1]; ts[2]]))
-#   idxs = [
-#       Vector{Int}(indexin(ts[1], times)),
-#       Vector{Int}(indexin(ts[2], times))
-#   ]
-
-#   function err(p̂, λ)
-#       ŷ = predict(m, p̂, times)
-#       l = 0.
-#       for i in axes(ŷ, 1)
-#           pred = ŷ[i, idxs[i]]
-#           data = y[i][1:length(pred)]
-#           l += sum(abs2, data-pred)
-#       end
-
-#       ŷ_reg = predict(m, p̂, 0:200)
-#       l += λ .* sum(abs2, min.(0, ŷ_reg))
-
-#       return l
-#   end
-  
-#   return err
-# end
   
