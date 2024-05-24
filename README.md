@@ -60,4 +60,4 @@ instantiate
 To run the experiments, run the `main.jl` file in the respective experiment directory.
 
 ### Generating the figures
-To generate the figures, run the `generate_figures.jl` file in the `post` directory.
+To generate the figures, run the `generate_figures.jl` file in the `post` directory. Figures are then saved in the `figures` directory.
