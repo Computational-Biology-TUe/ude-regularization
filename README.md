@@ -1,4 +1,4 @@
-<a href="https://www.biorxiv.org"> <img alt="bioRXiv Badge" src="https://img.shields.io/badge/bioR%CF%87iv-pending-red?style=flat"> </a> <a href="https://doi.org/10.5281/zenodo.11402366"><img alt="DOI Badge" src="https://zenodo.org/badge/DOI/10.5281/zenodo.11402366.svg"></a>
+<a href="https://www.biorxiv.org"> <img alt="bioRXiv Badge" src="https://img.shields.io/badge/bioR%CF%87iv-pending-red?style=flat"></a> <a href="https://doi.org/10.5281/zenodo.11402366"><img alt="DOI Badge" src="https://zenodo.org/badge/DOI/10.5281/zenodo.11402366.svg"></a>
 
 
 # Physiology-informed regularization enables training of universal differential equation systems for biological applications
