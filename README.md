@@ -1,4 +1,4 @@
-![Preprint](https://img.shields.io/badge/preprint-bioR%CF%87iv-red?style=flat&link=https%3A%2F%2Fdoi.org%2F10.1101%2F2024.05.17.594669)
+<img alt="Static Badge" src="https://img.shields.io/badge/bioR%CF%87iv-pending-red?style=flat">
 
 
 # Physiology-informed regularization enables training of universal differential equation systems for biological applications
