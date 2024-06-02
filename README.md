@@ -1,4 +1,4 @@
-<a href="https://www.biorxiv.org"> <img alt="bioRXiv Badge" src="https://img.shields.io/badge/bioR%CF%87iv-pending-red?style=flat"></a> <a href="https://doi.org/10.5281/zenodo.11402366"><img alt="DOI Badge" src="https://zenodo.org/badge/DOI/10.5281/zenodo.11402366.svg"></a>
+<a href="https://www.biorxiv.org/content/10.1101/2024.05.28.596164v1"> <img alt="Preprint Badge" src="https://img.shields.io/badge/bioR%CF%87iv-10.1101%2F2024.05.28.596164-red"></a> <a href="https://doi.org/10.5281/zenodo.11402366"><img alt="DOI Badge" src="https://zenodo.org/badge/DOI/10.5281/zenodo.11402366.svg"></a>
 
 
 # Physiology-informed regularization enables training of universal differential equation systems for biological applications
@@ -31,6 +31,11 @@ The Minimal Model experiment is implemented in the `minimal-model` directory. Th
 The folder also contains the following subdirectories:
 - `saved_runs`: Contains the results of the experiment.
 - `data`: Contains the data for the experiment.
+
+#### Data Source
+The glucose and insulin data files are originally from:
+
+Berry, S.E., Valdes, A.M., Drew, D.A. et al. Human postprandial responses to food and potential for precision nutrition. _Nat Med_ **26**, 964–973 (2020). [https://doi.org/10.1038/s41591-020-0934-0](https://doi.org/10.1038/s41591-020-0934-0)
 
 ### Postprocessing
 The postprocessing code is implemented in the `post` directory. The code is divided into the following files:
