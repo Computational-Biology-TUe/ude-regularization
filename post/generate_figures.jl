@@ -540,3 +540,102 @@ end
 f
 end
 save("figures/fig_6_minimal_model_auc_comparison.png", fig_boxplot, px_per_unit=FIGURE_RESOLUTION)
+
+# Supplementary Figures
+
+## Fig S2: Model Forecasts with more noise
+
+rng = StableRNG(1234)
+
+# Get the data used for training to obtain initial conditions
+initial_p = [0.05, 0.2, 1.1, 0.08]
+data_A, data_B, times_A, times_B, val_data_A, val_data_B = simulate_inputs(
+  initial_p, rng; noise_level=0.10)
+
+# Setup the problem
+# Define the neural network component
+U = Chain(
+    Dense(2, 3, rbf),
+    Dense(3, 3, rbf),
+    Dense(3, 3, rbf),
+    Dense(3, 1)
+)
+p_neural_init, snn = Lux.setup(rng, U)
+p_neural_init = ComponentArray(p_neural_init)
+# Define the hybrid model
+ude_problem = michaelismenten_ude(U, initial_p, data_A, data_B, (times_A[1], times_A[end]), snn)
+
+# Load the results
+regularization_strengths = [0.0, 1e-5]
+time_between_samples = 5
+selected_sampling_time = 40
+michment_results = [jldopen("michaelis-menten/saved_runs_2/michaelismenten_$(λ)_$(time_between_samples)_$(selected_sampling_time).jld2") for λ in regularization_strengths]
+
+figure_model_forecasts = let f = Figure(size=(750,300))
+
+  ga = f[1, 1] = GridLayout()
+  gb = f[1,2] = GridLayout()
+  gc = f[1,3] = GridLayout()
+
+  grids = [ga, gb, gc]
+
+  titles = ["No Regularization", "Regularization (λ = 1e-5)"]
+
+  for (i, (res, title)) in enumerate(zip(michment_results, titles))
+    training_errors = res["training_error"]
+    best_models = partialsortperm(training_errors, 1:25)
+
+    parameters = res["parameters"][best_models]
+    
+    model_fit_axis = CairoMakie.Axis(grids[i][1,1], limits=(nothing, (-1, 2.5)), title=title, xlabel="Time [min]", ylabel = "Concentration [mM]")
+    As = []
+    Bs = []
+    for p in parameters
+      sol = solve(ude_problem, p=p, saveat=0.1, tspan=(0., 100.))
+      push!(As, sol[1,:])
+      push!(Bs, sol[2,:])
+    end
+
+    lines!(model_fit_axis, 0:0.1:100, Array(val_data_A)[1:1001], color=:black, label="S True")
+    lines!(model_fit_axis, 0:0.1:100, Array(val_data_B)[1:1001], color=:black, linestyle=:dash, label="P True")
+
+    vspan!(model_fit_axis, [0], [selected_sampling_time], color = (:black, 0.2))
+
+    # compute the interquartile range
+    Am = hcat(As...)
+    Bm = hcat(Bs...)
+    Alow = Float64[]
+    Aup = Float64[]
+    Blow = Float64[]
+    Bup = Float64[]
+    for c in axes(Am, 1)
+      upper = quantile(Am[c,:], 0.75)
+      lower = quantile(Am[c,:], 0.25)
+      push!(Alow, lower)
+      push!(Aup, upper)
+      upper = quantile(Bm[c,:], 0.75)
+      lower = quantile(Bm[c,:], 0.25)
+      push!(Blow, lower)
+      push!(Bup, upper)
+    end
+
+    lines!(model_fit_axis, 0:0.1:100, median(Am, dims=2)[:,1], label="S ± IQR")
+    band!(model_fit_axis, 0:0.1:100, Alow, Aup, color=(colorschemes[:Egypt][1], 0.2), label="S ± IQR")
+    lines!(model_fit_axis, 0:0.1:100, median(Bm, dims=2)[:,1], label="P ± IQR")
+    band!(model_fit_axis, 0:0.1:100, Blow, Bup, color=(colorschemes[:Egypt][2], 0.2), label="P ± IQR")
+    if i == 1
+      f[2,1:3] = Legend(f, model_fit_axis, "Legend", merge=true, framevisible=false, orientation=:horizontal)
+    end
+  end
+
+  for (label, layout) in zip(["(A)", "(B)", "(C)"], [ga, gb, gc])
+    Label(layout[1, 1, TopLeft()], label,
+        fontsize = 15,
+        font = :bold,
+        padding = (0, 25, 5, 0),
+        halign = :right)
+  end
+  f
+end
+
+save("figures/others/fig_s2_model_forecasts_noise.png", figure_model_forecasts, px_per_unit=FIGURE_RESOLUTION)

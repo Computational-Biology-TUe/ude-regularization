@@ -14,7 +14,7 @@ function michaelismenten!(du, u, p, t)
 end
 
 """
-simulate_inputs(parameters, rng; train_end=30, train_step=5)
+simulate_inputs(parameters, rng; train_end=30, train_step=5, noise_level=0.05)
 
 Simulate noisy data for the Michaelis-Menten kinetics model according to the following ODEs:
     dA/dt = k1*A - (k2*A)/(kM + A)
@@ -28,7 +28,7 @@ Returns:
   - val_data_A: Validation data for species A
   - val_data_B: Validation data for species B
 """
-function simulate_inputs(parameters, rng; train_end=30, train_step=5)
+function simulate_inputs(parameters, rng; train_end=30, train_step=5, noise_level=0.05)
     # parameters, timespan and initial values
     u0 = [2, 0.]
     tspan = (0.,400)
@@ -50,8 +50,8 @@ function simulate_inputs(parameters, rng; train_end=30, train_step=5)
     val_data_B = solution(tspan[1]:0.1:tspan[end], idxs=2)
 
     # "Normally" distributed noise
-    data_A = max.(0, gtdata_A.u .+ randn(rng, size(gtdata_A.u)).*maximum(val_data_A.u).*0.05)
-    data_B = max.(0, gtdata_B.u .+ randn(rng, size(gtdata_B.u)).*maximum(val_data_B.u).*0.05)
+    data_A = max.(0, gtdata_A.u .+ randn(rng, size(gtdata_A.u)).*maximum(val_data_A.u).*noise_level)
+    data_B = max.(0, gtdata_B.u .+ randn(rng, size(gtdata_B.u)).*maximum(val_data_B.u).*noise_level)
 
     return data_A, data_B, times_A, times_B, val_data_A, val_data_B
 end

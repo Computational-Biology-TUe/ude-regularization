@@ -43,9 +43,11 @@ The postprocessing code is implemented in the `post` directory. The code is divi
 
 
 ## Running the Code
-To activate the Julia environment, make sure you have Julia version 1.10 installed and run the following commands
+To activate the Julia environment, make sure you have Julia version `1.10.0` or `1.10.4` installed and run the following commands
 
 ### Installing the dependencies
+The code dependencies including their versions are included in the `Project.toml` file. When instantiating the environment, the Julia package manager automatically takes care of the appropriate versions. 
+
 1. Open the Julia REPL
 ```bash
 julia
