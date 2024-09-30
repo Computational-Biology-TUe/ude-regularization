@@ -17,7 +17,7 @@ include("../michaelis-menten/ude.jl")
 
 FIGURE_RESOLUTION = 4 # set to 4 for paper resolution
 
-rbf(x) = exp.(-x^2)
+rbf(x) = exp(-x^2)
 
 rng = StableRNG(1234)
 
@@ -70,9 +70,10 @@ data_A, data_B, times_A, times_B, val_data_A, val_data_B = simulate_inputs(
 # Setup the problem
 # Define the neural network component
 U = Chain(
-    Dense(2, 2, rbf),
-    Dense(2, 2, rbf),
-    Dense(2, 1)
+    Dense(2, 3, rbf),
+    Dense(3, 3, rbf),
+    Dense(3, 3, rbf),
+    Dense(3, 1)
 )
 p_neural_init, snn = Lux.setup(rng, U)
 p_neural_init = ComponentArray(p_neural_init)
@@ -83,13 +84,11 @@ ude_problem = michaelismenten_ude(U, initial_p, data_A, data_B, (times_A[1], tim
 regularization_strengths = [0.0, 1e-5, 1.0]
 time_between_samples = 5
 selected_sampling_time = 40
-<<<<<<< HEAD
 michment_results = [jldopen("michaelis-menten/saved_runs/michaelismenten_$(λ)_$(time_between_samples)_$(selected_sampling_time).jld2") for λ in regularization_strengths]
+ComponentVector{Float64}(michment_results[1]["parameters"][1].ude)
 michment_results[1]["parameters"][1].ude
-=======
-michment_results = [jldopen("michaelis-menten/saved_runs_smaller_network/michaelismenten_$(λ)_$(time_between_samples)_$(selected_sampling_time).jld2") for λ in regularization_strengths]
 
->>>>>>> 37b07b78c66986da5fab819508d28cff8d912c20
+
 figure_model_forecasts = let f = Figure(size=(750,300))
 
   ga = f[1, 1] = GridLayout()
