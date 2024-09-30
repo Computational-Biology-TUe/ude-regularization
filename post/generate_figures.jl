@@ -85,7 +85,7 @@ regularization_strengths = [0.0, 1e-5, 1.0]
 time_between_samples = 5
 selected_sampling_time = 40
 michment_results = [jldopen("michaelis-menten/saved_runs/michaelismenten_$(λ)_$(time_between_samples)_$(selected_sampling_time).jld2") for λ in regularization_strengths]
-
+michment_results[1]["parameters"][1].ude
 figure_model_forecasts = let f = Figure(size=(750,300))
 
   ga = f[1, 1] = GridLayout()
@@ -571,13 +571,12 @@ time_between_samples = 5
 selected_sampling_time = 40
 michment_results = [jldopen("michaelis-menten/saved_runs_2/michaelismenten_$(λ)_$(time_between_samples)_$(selected_sampling_time).jld2") for λ in regularization_strengths]
 
-figure_model_forecasts = let f = Figure(size=(750,300))
+figure_model_forecasts = let f = Figure(size=(550,300))
 
   ga = f[1, 1] = GridLayout()
   gb = f[1,2] = GridLayout()
-  gc = f[1,3] = GridLayout()
 
-  grids = [ga, gb, gc]
+  grids = [ga, gb]
 
   titles = ["No Regularization", "Regularization (λ = 1e-5)"]
 
@@ -624,11 +623,11 @@ figure_model_forecasts = let f = Figure(size=(750,300))
     lines!(model_fit_axis, 0:0.1:100, median(Bm, dims=2)[:,1], label="P ± IQR")
     band!(model_fit_axis, 0:0.1:100, Blow, Bup, color=(colorschemes[:Egypt][2], 0.2), label="P ± IQR")
     if i == 1
-      f[2,1:3] = Legend(f, model_fit_axis, "Legend", merge=true, framevisible=false, orientation=:horizontal)
+      f[2,1:2] = Legend(f, model_fit_axis, "Legend", merge=true, framevisible=false, orientation=:horizontal)
     end
   end
 
-  for (label, layout) in zip(["(A)", "(B)", "(C)"], [ga, gb, gc])
+  for (label, layout) in zip(["(A)", "(B)"], [ga, gb])
     Label(layout[1, 1, TopLeft()], label,
         fontsize = 15,
         font = :bold,
@@ -639,3 +638,71 @@ figure_model_forecasts = let f = Figure(size=(750,300))
 end
 
 save("figures/others/fig_s2_model_forecasts_noise.png", figure_model_forecasts, px_per_unit=FIGURE_RESOLUTION)
+
+## Fig S3: Model selection
+
+widths = [2, 3, 4]
+depths = [1, 2, 3, 4]
+
+errors=  []
+
+for width in widths, depth in depths
+
+  mod = jldopen("michaelis-menten/model_selection_runs/michaelismenten_$(width)_$(depth).jld2", "r") do file
+    file["validation_error"]
+  end
+  push!(errors, mod)
+  println("$(width) $(depth)")
+end
+
+[mean(log10.(err)) for err in errors]
+
+
+errors_fig = let f = Figure(size=(300,300))
+
+  ax = CairoMakie.Axis(f[1,1])
+
+  locs = [0.25, 0.75, 1.25, 1.75, 3.25, 3.75, 4.25, 4.75, 6.25, 6.75, 7.25, 7.75]
+  labels = ["2x1", "2x2", "2x3", "2x4", "3x1", "3x2", "3x3", "3x4", "4x1", "4x2", "4x3", "4x4"]
+  for (i, (err, label)) in enumerate(zip(errors, labels))
+    boxplot!(ax, repeat([locs[i]], 50), log10.(err)[partialsortperm(err, 1:50)], color = colorschemes[:Egypt][(i-1) ÷ 4 + 1], width=0.4)
+  end
+  f 
+end
+
+# Fig S4: Regularization Strength Distributions for all sampling schedules
+
+lambda_values= [0., 1e-9, 1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1]
+times_between_samples = [5, 10]
+selected_sampling_times = 20:10:100
+
+for time_between_samples in times_between_samples
+  figure_regularization_strengths = let f = Figure(size=(750,3000))
+    for (i,selected_sampling_time) in enumerate(selected_sampling_times)
+
+      michment_results = [jldopen("michaelis-menten/saved_runs/michaelismenten_$(λ)_$(time_between_samples)_$(selected_sampling_time).jld2") for λ in lambda_values]
+      mse_vals = vcat([res["validation_error"] for res in michment_results]...)
+      dotplot_width = 0.1
+      categories = [@sprintf "λ = %g" val for val in lambda_values]
+
+      #mse_matrix_5 = [res["validation_error"] for res in michment_results]
+
+      axis_regularization_strength = CairoMakie.Axis(f[i,1];
+        xticks = ([1:11...] ./ 1.5, categories),
+        xticklabelrotation = pi/6,
+        xlabel = "Regularization Strength",
+        ylabel = L"\mathrm{Err}_{\mathrm{val}}")
+      # ff = plot(;xlabel="Sampling Duration", ylabel="SSE", yaxis=:log, grid=false)
+      labels = ["Unregularized", "Regularized"]
+      positions = vcat([repeat([i/1.5], 100) for i in eachindex(lambda_values)]...)
+      mse = log10.(mse_vals)
+
+      violin!(axis_regularization_strength, positions, mse; side=:left, color = (colorschemes[:Egypt][1], 0.8))
+      scatter!(axis_regularization_strength, positions.+0.08 + rand(length(positions))*dotplot_width, mse; markersize=3, marker=:circle)
+    end
+    f
+  end
+
+  save("figures/fig_s4_model_regularization_strengths_$(time_between_samples).png", figure_regularization_strengths, px_per_unit=FIGURE_RESOLUTION)
+
+end

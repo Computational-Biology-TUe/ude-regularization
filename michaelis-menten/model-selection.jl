@@ -9,7 +9,7 @@ const sampling_schedules = [
 ]
 
 # Number of initial values for optimization
-const n_starting_points = 10
+const n_starting_points = 100
 
 # noise level for the data
 const noise_level = 0.05
@@ -17,7 +17,7 @@ const noise_level = 0.05
 # Define the parameter values
 const initial_p = [0.05, 0.2, 1.1, 0.08]
 
-n_cores=5
+n_cores=10
 
 using Distributed
 
@@ -60,7 +60,7 @@ function generate_chain(width, depth)
     return Chain(Dense(2, width, rbf), layers..., Dense(width, 1))
 end
 
-
+generate_chain(2,2)
 step_size = 5
 end_time = 100
 lambd = 0.0
