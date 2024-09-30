@@ -52,10 +52,15 @@ end
 
 function predict(m, p̂, t)
     _prob = remake(m, tspan = (t[1], t[end]), p = p̂)
-    Array(solve(_prob, Tsit5(), saveat = t,
+    sol = solve(_prob, Tsit5(), saveat = t,
                 abstol=1e-6, reltol=1e-6,
                 sensealg = ForwardDiffSensitivity()
-                ))
+                )
+
+    if ~SciMLBase.successful_retcode(sol.retcode)
+        throw(ErrorException("ODE Solve failed"))
+    end
+    return Array(sol)
 end
 
 function michaelismenten_validation(p̂, args)

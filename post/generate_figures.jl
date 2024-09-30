@@ -70,10 +70,9 @@ data_A, data_B, times_A, times_B, val_data_A, val_data_B = simulate_inputs(
 # Setup the problem
 # Define the neural network component
 U = Chain(
-    Dense(2, 3, rbf),
-    Dense(3, 3, rbf),
-    Dense(3, 3, rbf),
-    Dense(3, 1)
+    Dense(2, 2, rbf),
+    Dense(2, 2, rbf),
+    Dense(2, 1)
 )
 p_neural_init, snn = Lux.setup(rng, U)
 p_neural_init = ComponentArray(p_neural_init)
@@ -84,7 +83,7 @@ ude_problem = michaelismenten_ude(U, initial_p, data_A, data_B, (times_A[1], tim
 regularization_strengths = [0.0, 1e-5, 1.0]
 time_between_samples = 5
 selected_sampling_time = 40
-michment_results = [jldopen("michaelis-menten/saved_runs/michaelismenten_$(λ)_$(time_between_samples)_$(selected_sampling_time).jld2") for λ in regularization_strengths]
+michment_results = [jldopen("michaelis-menten/saved_runs_smaller_network/michaelismenten_$(λ)_$(time_between_samples)_$(selected_sampling_time).jld2") for λ in regularization_strengths]
 
 figure_model_forecasts = let f = Figure(size=(750,300))
 
@@ -160,7 +159,7 @@ save("figures/fig_2_model_forecasts.png", figure_model_forecasts, px_per_unit=FI
 lambda_values= [0., 1e-9, 1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1]
 time_between_samples = 5
 selected_sampling_time = 40
-michment_results = [jldopen("michaelis-menten/saved_runs/michaelismenten_$(λ)_$(time_between_samples)_$(selected_sampling_time).jld2") for λ in lambda_values]
+michment_results = [jldopen("michaelis-menten/saved_runs_smaller_network/michaelismenten_$(λ)_$(time_between_samples)_$(selected_sampling_time).jld2") for λ in lambda_values]
 mse_vals = vcat([res["validation_error"] for res in michment_results]...)
 
 figure_regularization_strengths = let f = Figure(size=(750,300))
@@ -218,7 +217,7 @@ figure_sampling_schedules = let f = Figure(size=(750,300))
     labels = ["λ = 0", "λ = 1e-5", "λ = 1"]
     for (λ, label) in zip(lambda_values, labels)
 
-      michment_results = [jldopen("michaelis-menten/saved_runs/michaelismenten_$(λ)_$(schedule)_$(sampling_time).jld2") for sampling_time in end_times]
+      michment_results = [jldopen("michaelis-menten/saved_runs_smaller_network/michaelismenten_$(λ)_$(schedule)_$(sampling_time).jld2") for sampling_time in end_times]
       mse_vals = log10.(hcat([res["validation_error"] for res in michment_results]...))
       means = mean(mse_vals, dims=1)[:]
       stds = 1.96 .* std(mse_vals, dims=1)[:] ./ (sqrt(size(mse_vals, 1)))
@@ -312,7 +311,7 @@ model_objectives = Dict()
 
 for auc in auc_values
   for nonneg in nonneg_values
-    models = jldopen("minimal-model/saved_runs/minimalmodel_$(auc)_$(nonneg).jld2", "r")
+    models = jldopen("minimal-model/saved_runs_smaller_network/minimalmodel_$(auc)_$(nonneg).jld2", "r")
 
     parameters = [isnothing(model) ? nothing : model for model in models["training_error"]]
     objectives = [isnothing(model) ? nothing : model for model in models["training_error"]]
@@ -569,7 +568,7 @@ ude_problem = michaelismenten_ude(U, initial_p, data_A, data_B, (times_A[1], tim
 regularization_strengths = [0.0, 1e-5]
 time_between_samples = 5
 selected_sampling_time = 40
-michment_results = [jldopen("michaelis-menten/saved_runs_2/michaelismenten_$(λ)_$(time_between_samples)_$(selected_sampling_time).jld2") for λ in regularization_strengths]
+michment_results = [jldopen("michaelis-menten/saved_runs_smaller_network_2/michaelismenten_$(λ)_$(time_between_samples)_$(selected_sampling_time).jld2") for λ in regularization_strengths]
 
 figure_model_forecasts = let f = Figure(size=(750,300))
 
