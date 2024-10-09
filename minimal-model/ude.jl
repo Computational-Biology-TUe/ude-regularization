@@ -1,5 +1,23 @@
+"""
+minimalmodel_ude(Qb, Ib, M, p_opt, I, U, snn; VG = 18.57, fG = 0.005551)
+
+create the ude model for the minimal model of glucose kinetics.
+
+Parameters:
+  - Qb: Basal glucose
+  - Ib: Basal insulin level
+  - M: Total amount of glucose
+  - p_opt: Model parameters (p1, p2, p3)
+  - I: Insulin interpolator function
+  - U: Neural network
+  - snn: Neural network state
+
+Returns:
+  - minimalmodel_ude! function. Can be used as the ODE function for the UDE minimal model.
+"""
 function minimalmodel_ude(Qb, Ib, M, p_opt, I, U, snn; VG = 18.57, fG = 0.005551)
 
+  # define a closure around the neural network to be used as RA function
   input(τ, p) = U([τ], p.nn, snn)[1][1]
 
   function minimalmodel_ude!(du, u, p, t)
@@ -14,13 +32,37 @@ function minimalmodel_ude(Qb, Ib, M, p_opt, I, U, snn; VG = 18.57, fG = 0.005551
   return minimalmodel_ude!
 end
 
+"""
+initial_parameters(U, rng)
+
+Initialize the neural network parameters.
+
+Parameters:
+  - U: Neural network
+  - rng: Random number generator
+
+Returns:
+  - Function to initialize the neural network parameters and return them as a ComponentArray
+"""
 function initial_parameters(U, rng)
   function initials()
     nn_init, _ = Lux.setup(rng, U)
     ComponentArray(nn_init)
   end
 end
-  
+ 
+"""
+setup_model_training(initials, udeloss)
+
+Setup the model training function. 
+
+Parameters:
+  - initials: Initial model parameters
+  - udeloss: Loss function
+
+Returns:
+  - Function to fit the model to the data
+"""
 function setup_model_training(initials, udeloss)
 
   adtype = Optimization.AutoForwardDiff()
@@ -44,6 +86,24 @@ function setup_model_training(initials, udeloss)
   return fit_function
 end
 
+"""
+get_ude_loss(UDEproblem, save_timepoints, mglc, glucose_idx, U, snn, λ_AUC, λ_nonneg)
+
+Get the loss function for the UDE model.
+
+Parameters:
+  - UDEproblem: ODE problem for the UDE model
+  - save_timepoints: Time points to save the solution
+  - mglc: Mean glucose data
+  - glucose_idx: Index of glucose data
+  - U: Neural network
+  - snn: Neural network state
+  - λ_AUC: Regularization parameter for AUC
+  - λ_nonneg: Regularization parameter for non-negativity
+
+Returns:
+  - Loss function for the UDE model
+"""
 function get_ude_loss(UDEproblem, save_timepoints, mglc, glucose_idx, U, snn, λ_AUC, λ_nonneg)
 
   function udeloss(p)

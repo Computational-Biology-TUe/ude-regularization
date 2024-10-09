@@ -69,7 +69,7 @@ println("Initial model parameters found. Starting neural UDE optimization.")
 # Define the neural network components
 U = Chain(
     Dense(1, 3, rbf; init_weight = ude_neural_initializer),
-    Dense(3, 3, rbf; init_weight = ude_neural_initializer),
+    #Dense(3, 3, rbf; init_weight = ude_neural_initializer),
     Dense(3, 1; init_weight = ude_neural_initializer)
 )
 
@@ -93,7 +93,7 @@ for lAUC in λ_AUC
   for lnonneg in λ_nonneg
     println("Running MSE optimizer for lAUC = $(lAUC) and lnonneg = $(lnonneg)")
 
-    if !OVERWRITE && isfile("minimal-model/saved_runs/minimalmodel_$(lAUC)_$(lnonneg).jld2")
+    if !OVERWRITE && isfile("minimal-model/saved_runs_smaller_network/minimalmodel_$(lAUC)_$(lnonneg).jld2")
       println("File already exists, skipping.")
       continue
     end
@@ -110,7 +110,7 @@ for lAUC in λ_AUC
     training_error = [r[2] for r in results]
 
     jldsave(
-          "minimal-model/saved_runs/minimalmodel_$(lAUC)_$(lnonneg).jld2";
+          "minimal-model/saved_runs_smaller_network/minimalmodel_$(lAUC)_$(lnonneg).jld2";
           parameters=parameters,
           training_error=training_error)
   end
