@@ -2,26 +2,26 @@
 michaelismenten!(du, u, p, t)
 
 Ground truth model for the Michaelis-Menten kinetics model according to the following ODEs:
-    dA/dt = k1*A - (k2*A)/(kM + A)
-    dB/dt = (k2*A)/(kM + A) - k3*B
+    dS/dt = kS*S - (kSP*S)/(kM + S)
+    dP/dt = (kSP*S)/(kM + S) - kP*P
 Implementation according to the DifferentialEquations.jl API.
 """
 function michaelismenten!(du, u, p, t)
     A, B = u
-    k1, k2, kM, k3 = p
-    du[1] = k1*A - (k2*A)/(kM+A)
-    du[2] = (k2*A)/(kM+A) - k3*B;
+    kS, kSP, kM, kP = p
+    du[1] = kS*A - (kSP*A)/(kM+A)
+    du[2] = (kSP*A)/(kM+A) - kP*B;
 end
 
 """
 simulate_inputs(parameters, rng; train_end=30, train_step=5, noise_level=0.05, initial_conditions=[2.0, 0.0])
 
 Simulate noisy data for the Michaelis-Menten kinetics model according to the following ODEs:
-    dS/dt = k1*S - (k2*S)/(kM + S)
-    dP/dt = (k2*S)/(kM + S) - k3*P
+    dS/dt = kS*S - (kSP*S)/(kM + S)
+    dP/dt = (kSP*S)/(kM + S) - kP*P
 
 Parameters:
-  - parameters: Model parameters [k1, k2, kM, k3]
+  - parameters: Model parameters [kS, kSP, kM, kP]
   - rng: Random number generator
   - train_end: End time for training data
   - train_step: Time step for training data
