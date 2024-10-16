@@ -8,6 +8,7 @@ n_cores = 5
 # Experiment 2: For two λ values and a single sampling schedule, we run the experiment with a higher noise level.
 # Experiment 3: For three λ values and a single sampling schedule, we run experiment 1 with a longer time span (200, 400)
 EXPERIMENT_ID = 3
+OVERWRITE = false
 
 if EXPERIMENT_ID == 1
   # lambda values for regularization
