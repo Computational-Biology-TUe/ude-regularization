@@ -6,7 +6,8 @@ n_cores = 5
 # set the experiment ID for the Michaelis-Menten experiment. 
 # Experiment 1: Varying λ and sampling schedules. This is the main experiment in the paper.
 # Experiment 2: For two λ values and a single sampling schedule, we run the experiment with a higher noise level.
-EXPERIMENT_ID = 1
+# Experiment 3: For three λ values and a single sampling schedule, we run experiment 1 with a longer time span (200, 400)
+EXPERIMENT_ID = 3
 
 if EXPERIMENT_ID == 1
   # lambda values for regularization
@@ -45,6 +46,24 @@ elseif EXPERIMENT_ID == 2
 
   # Define the parameter values
   const initial_p = [0.05, 0.2, 1.1, 0.08]
+
+elseif EXPERIMENT_ID == 3
+    # lambda values for regularization
+    const lambda_values = [0.0, 1e-5, 1.0]
+
+    # sampling schedules for training data
+    const sampling_schedules = [
+      (5, [200, 400])
+    ]
+  
+    # Number of initial values for optimization
+    const n_starting_points = 100
+  
+    # noise level for the data
+    const noise_level = 0.05
+  
+    # Define the parameter values
+    const initial_p = [0.05, 0.2, 1.1, 0.08]
 end
 
 ## END SETTINGS
@@ -82,9 +101,10 @@ rng = StableRNG(1847)
 
 # Define the neural network component
 U = Chain(
-    Dense(2, 4, rbf),
-    Dense(4, 4, rbf),
-    Dense(4, 1)
+    Dense(2, 3, rbf),
+    Dense(3, 3, rbf),
+    Dense(3, 3, rbf),
+    Dense(3, 1)
 )
 
 # Setup the neural network
