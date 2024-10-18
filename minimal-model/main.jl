@@ -73,14 +73,17 @@ U = Chain(
     Dense(3, 1; init_weight = ude_neural_initializer)
 )
 
+# Set the meal size and basal glucose and insulin values
 M = 85500.
 Qb = mglc[1][1]
 Ib = mins[1][1]
 I = insulin_interpolator(mins, insulin_timepoints)
 
+# setup the neural network
 nn_init, snn = Lux.setup(rng, U);
 nn_init = ComponentArray(nn_init);
 
+# define the model
 udemodel = minimalmodel_ude(Qb, Ib, M, model_parameters, I, U, snn)
 p_estim_temp = ComponentArray(nn = nn_init)
 u0 = [Qb, 0.]
@@ -89,6 +92,7 @@ UDEproblem = ODEProblem{true, SciMLBase.FullSpecialize}(udemodel,  u0, (0., 480.
 save_timepoints = 0:1:480.
 glucose_idx = findall(x -> x ∈ glucose_timepoints, save_timepoints)
 
+# for all regularization strengths run the model
 for lAUC in λ_AUC
   for lnonneg in λ_nonneg
     println("Running MSE optimizer for lAUC = $(lAUC) and lnonneg = $(lnonneg)")

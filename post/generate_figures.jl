@@ -242,13 +242,12 @@ figure_sampling_schedules = let f = Figure(size=(750,300))
       stds = 1.96 .* std(mse_vals, dims=1)[:] ./ (sqrt(size(mse_vals, 1)))
       #println(size(mse_vals))
       lines!(axis, end_times, means, label=label)
-      band!(axis, end_times, means-stds, means+stds; alpha=0.1,label=label, transparency=true)
+      band!(axis, end_times, means-stds, means+stds; alpha=0.5,label=label)
     end
-
-    if schedule == 5
-      push!(legend_axis, axis)
-    end
+    push!(legend_axis, axis)
   end
+
+  linkyaxes!(legend_axis...)
 
   for (label, layout) in zip(["(A)", "(B)", "(C)"], [ga, gb, gc])
     Label(layout[1, 1, TopLeft()], label,
@@ -820,65 +819,63 @@ save("figures/others/fig_s3_model_forecasts_initial_conditions.png", figure_mode
 
 ## Fig S3: Model selection
 
-widths = [2, 3, 4]
-depths = [1, 2, 3, 4]
+# widths = [2, 3, 4]
+# depths = [1, 2, 3, 4]
 
-errors=  []
+# errors=  []
 
-for width in widths, depth in depths
+# for width in widths, depth in depths
 
-  mod = jldopen("michaelis-menten/model_selection_runs/michaelismenten_$(width)_$(depth).jld2", "r") do file
-    file["validation_error"]
-  end
-  push!(errors, mod)
-  println("$(width) $(depth)")
-end
-
-[mean(partialsort(err, 1:10)) for err in errors]
+#   mod = jldopen("michaelis-menten/model_selection_runs/michaelismenten_$(width)_$(depth).jld2", "r") do file
+#     file["validation_error"]
+#   end
+#   push!(errors, mod)
+#   println("$(width) $(depth)")
+# end
 
 
-errors_fig = let f = Figure(size=(300,300))
+# errors_fig = let f = Figure(size=(300,300))
 
-  ax = CairoMakie.Axis(f[1,1])
+#   ax = CairoMakie.Axis(f[1,1])
 
-  locs = [0.25, 0.75, 1.25, 1.75, 3.25, 3.75, 4.25, 4.75, 6.25, 6.75, 7.25, 7.75]
-  labels = ["2x1", "2x2", "2x3", "2x4", "3x1", "3x2", "3x3", "3x4", "4x1", "4x2", "4x3", "4x4"]
-  for (i, (err, label)) in enumerate(zip(errors, labels))
-    boxplot!(ax, repeat([locs[i]], 50), log10.(err)[partialsortperm(err, 1:50)], color = colorschemes[:Egypt][(i-1) ÷ 4 + 1], width=0.4)
-  end
-  f 
-end
+#   locs = [0.25, 0.75, 1.25, 1.75, 3.25, 3.75, 4.25, 4.75, 6.25, 6.75, 7.25, 7.75]
+#   labels = ["2x1", "2x2", "2x3", "2x4", "3x1", "3x2", "3x3", "3x4", "4x1", "4x2", "4x3", "4x4"]
+#   for (i, (err, label)) in enumerate(zip(errors, labels))
+#     boxplot!(ax, repeat([locs[i]], 50), log10.(err)[partialsortperm(err, 1:50)], color = colorschemes[:Egypt][(i-1) ÷ 4 + 1], width=0.4)
+#   end
+#   f 
+# end
 
-## Fig S3B: Model selection
+# ## Fig S3B: Model selection
 
-widths = [2, 3]
-depths = [1, 2, 3, 4]
+# widths = [2, 3]
+# depths = [1, 2, 3, 4]
 
-errors=  []
+# errors=  []
 
-for width in widths, depth in depths
+# for width in widths, depth in depths
 
-  mod = jldopen("minimal-model/model_selection_runs/minimalmodel_$(width)_$(depth).jld2", "r") do file
-    file["training_error"]
-  end
-  push!(errors, mod)
-  println("$(width) $(depth)")
-end
+#   mod = jldopen("minimal-model/model_selection_runs/minimalmodel_$(width)_$(depth).jld2", "r") do file
+#     file["training_error"]
+#   end
+#   push!(errors, mod)
+#   println("$(width) $(depth)")
+# end
 
-[mean(err) for err in errors]
+# [mean(err) for err in errors]
 
-using CairoMakie, ColorSchemes
-errors_fig = let f = Figure(size=(300,300))
+# using CairoMakie, ColorSchemes
+# errors_fig = let f = Figure(size=(300,300))
 
-  ax = CairoMakie.Axis(f[1,1])
+#   ax = CairoMakie.Axis(f[1,1])
 
-  locs = [0.25, 0.75, 1.25, 1.75, 3.25, 3.75, 4.25, 4.75, 6.25, 6.75, 7.25, 7.75]
-  labels = ["2x1", "2x2", "2x3", "2x4", "3x1", "3x2", "3x3", "3x4", "4x1", "4x2", "4x3", "4x4"]
-  for (i, (err, label)) in enumerate(zip(errors, labels))
-    boxplot!(ax, repeat([locs[i]], 20), log10.(err)[partialsortperm(err, 1:20)], color = colorschemes[:Egypt][(i-1) ÷ 4 + 1], width=0.4)
-  end
-  f 
-end
+#   locs = [0.25, 0.75, 1.25, 1.75, 3.25, 3.75, 4.25, 4.75, 6.25, 6.75, 7.25, 7.75]
+#   labels = ["2x1", "2x2", "2x3", "2x4", "3x1", "3x2", "3x3", "3x4", "4x1", "4x2", "4x3", "4x4"]
+#   for (i, (err, label)) in enumerate(zip(errors, labels))
+#     boxplot!(ax, repeat([locs[i]], 20), log10.(err)[partialsortperm(err, 1:20)], color = colorschemes[:Egypt][(i-1) ÷ 4 + 1], width=0.4)
+#   end
+#   f 
+# end
 
 
 # Fig S4: Regularization Strength Distributions for all sampling schedules
@@ -951,3 +948,350 @@ for time_between_samples in [20]
   save("figures/fig_s4_model_regularization_strengths_$(time_between_samples).png", figure_regularization_strengths, px_per_unit=FIGURE_RESOLUTION)
 
 end
+
+time_combinations = [(5, 20), (5, 80), (10, 20), (10, 80), (20, 40), (20, 80)]
+
+for (t1, t2) in time_combinations
+  # Fig S5 forecasts for other combinations of sampling
+  rng = StableRNG(1234)
+
+  # Get the data used for training to obtain initial conditions
+  initial_p = [0.05, 0.2, 1.1, 0.08]
+  data_A, data_B, times_A, times_B, val_data_A, val_data_B = simulate_inputs(
+    initial_p, rng)
+
+  # Setup the problem
+  # Define the neural network component
+  U = Chain(
+      Dense(2, 3, rbf),
+      Dense(3, 3, rbf),
+      Dense(3, 3, rbf),
+      Dense(3, 1)
+  )
+  p_neural_init, snn = Lux.setup(rng, U)
+  p_neural_init = ComponentArray(p_neural_init)
+  ude_init = initial_parameters(U, 2, rng)[1].ude
+  ude_init = ComponentVector{Float64}(ude = p_neural_init).ude.layer_1.bias
+  # Define the hybrid model
+  ude_problem = michaelismenten_ude(U, initial_p, data_A, data_B, (times_A[1], times_A[end]), snn)
+
+  # Load the results
+  regularization_strengths = [0.0, 1e-5, 1.0]
+  time_between_samples = t1
+  selected_sampling_time = t2
+  michment_results = [jldopen("michaelis-menten/saved_runs/michaelismenten_$(λ)_$(time_between_samples)_$(selected_sampling_time).jld2") for λ in regularization_strengths]
+  Vector{Float64}(michment_results[1]["parameters"][1].ude.layer_1.bias[:])
+  figure_model_forecasts = let f = Figure(size=(750,300))
+
+    ga = f[1, 1] = GridLayout()
+    gb = f[1,2] = GridLayout()
+    gc = f[1,3] = GridLayout()
+
+    grids = [ga, gb, gc]
+
+    titles = ["No Regularization", "Regularization (λ = 1e-5)", "Regularization (λ = 1)"]
+
+    for (i, (res, title)) in enumerate(zip(michment_results, titles))
+      training_errors = res["training_error"]
+      best_models = partialsortperm(training_errors, 1:25)
+
+      parameters = res["parameters"][best_models]
+
+      # reformat the parameters to prevent an error in Lux not recognizing the type of the bias
+      new_parameters = []
+      for p in parameters
+        layers = []
+        for layer in keys(p.ude)
+          weight = copy(p.ude[layer].weight)
+          bias = copy(p.ude[layer].bias[:])
+          push!(layers, ComponentArray(weight=weight, bias=bias))
+        end
+
+        new_param = ComponentArray(layer_1=layers[1], layer_2=layers[2], layer_3=layers[3], layer_4=layers[4])
+
+        
+        push!(new_parameters, ComponentArray(ude=new_param))
+      end
+      
+      model_fit_axis = CairoMakie.Axis(grids[i][1,1], limits=(nothing, (-1, 2.5)), title=title, xlabel="Time [min]", ylabel = "Concentration [mM]")
+      As = []
+      Bs = []
+      for p in new_parameters
+        sol = solve(ude_problem, p=p, saveat=0.1, tspan=(0., 100.))
+        push!(As, sol[1,:])
+        push!(Bs, sol[2,:])
+      end
+
+      lines!(model_fit_axis, 0:0.1:100, Array(val_data_A)[1:1001], color=:black, label="S True")
+      lines!(model_fit_axis, 0:0.1:100, Array(val_data_B)[1:1001], color=:black, linestyle=:dash, label="P True")
+
+      vspan!(model_fit_axis, [0], [selected_sampling_time], color = (:black, 0.2))
+
+      # compute the interquartile range
+      Am = hcat(As...)
+      Bm = hcat(Bs...)
+      Alow = Float64[]
+      Aup = Float64[]
+      Blow = Float64[]
+      Bup = Float64[]
+      for c in axes(Am, 1)
+        upper = quantile(Am[c,:], 0.75)
+        lower = quantile(Am[c,:], 0.25)
+        push!(Alow, lower)
+        push!(Aup, upper)
+        upper = quantile(Bm[c,:], 0.75)
+        lower = quantile(Bm[c,:], 0.25)
+        push!(Blow, lower)
+        push!(Bup, upper)
+      end
+
+      lines!(model_fit_axis, 0:0.1:100, median(Am, dims=2)[:,1], label="S ± IQR")
+      band!(model_fit_axis, 0:0.1:100, Alow, Aup, color=(colorschemes[:Egypt][1], 0.2), label="S ± IQR")
+      lines!(model_fit_axis, 0:0.1:100, median(Bm, dims=2)[:,1], label="P ± IQR")
+      band!(model_fit_axis, 0:0.1:100, Blow, Bup, color=(colorschemes[:Egypt][2], 0.2), label="P ± IQR")
+      if i == 1
+        f[2,1:3] = Legend(f, model_fit_axis, "Legend", merge=true, framevisible=false, orientation=:horizontal)
+      end
+    end
+
+    for (label, layout) in zip(["(A)", "(B)", "(C)"], [ga, gb, gc])
+      Label(layout[1, 1, TopLeft()], label,
+          fontsize = 15,
+          font = :bold,
+          padding = (0, 25, 5, 0),
+          halign = :right)
+    end
+    f
+  end
+
+  save("figures/others/s5_forecast_$(t1)_$(t2).png", figure_model_forecasts, px_per_unit=FIGURE_RESOLUTION)
+end
+
+
+# Figure S6
+rng = StableRNG(1234)
+
+# Get the data used for training to obtain initial conditions
+initial_p = [0.05, 0.2, 1.1, 0.08]
+data_A, data_B, times_A, times_B, val_data_A, val_data_B = simulate_inputs(
+  initial_p, rng)
+
+# Setup the problem
+# Define the neural network component
+U = Chain(
+    Dense(2, 3, rbf),
+    Dense(3, 3, rbf),
+    Dense(3, 3, rbf),
+    Dense(3, 1)
+)
+p_neural_init, snn = Lux.setup(rng, U)
+p_neural_init = ComponentArray(p_neural_init)
+ude_init = initial_parameters(U, 2, rng)[1].ude
+ude_init = ComponentVector{Float64}(ude = p_neural_init).ude.layer_1.bias
+# Define the hybrid model
+ude_problem = michaelismenten_ude(U, initial_p, data_A, data_B, (times_A[1], times_A[end]), snn)
+
+# Load the results
+regularization_strengths = [0.0, 1e-5, 1.0]
+time_between_samples = 5
+selected_sampling_time = 200
+michment_results = [jldopen("michaelis-menten/saved_runs_3/michaelismenten_$(λ)_$(time_between_samples)_$(selected_sampling_time).jld2") for λ in regularization_strengths]
+Vector{Float64}(michment_results[1]["parameters"][1].ude.layer_1.bias[:])
+figure_model_forecasts = let f = Figure(size=(750,300))
+
+  ga = f[1, 1] = GridLayout()
+  gb = f[1,2] = GridLayout()
+  gc = f[1,3] = GridLayout()
+
+  grids = [ga, gb, gc]
+
+  titles = ["No Regularization", "Regularization (λ = 1e-5)", "Regularization (λ = 1)"]
+
+  for (i, (res, title)) in enumerate(zip(michment_results, titles))
+    training_errors = res["training_error"]
+    best_models = partialsortperm(training_errors, 1:25)
+
+    parameters = res["parameters"][best_models]
+
+    # reformat the parameters to prevent an error in Lux not recognizing the type of the bias
+    new_parameters = []
+    for p in parameters
+      layers = []
+      for layer in keys(p.ude)
+        weight = copy(p.ude[layer].weight)
+        bias = copy(p.ude[layer].bias[:])
+        push!(layers, ComponentArray(weight=weight, bias=bias))
+      end
+
+      new_param = ComponentArray(layer_1=layers[1], layer_2=layers[2], layer_3=layers[3], layer_4=layers[4])
+
+      
+      push!(new_parameters, ComponentArray(ude=new_param))
+    end
+    
+    model_fit_axis = CairoMakie.Axis(grids[i][1,1], limits=(nothing, (-1, 2.5)), title=title, xlabel="Time [min]", ylabel = "Concentration [mM]")
+    As = []
+    Bs = []
+    for p in new_parameters
+      sol = solve(ude_problem, p=p, saveat=0.1, tspan=(0., 200.))
+      push!(As, sol[1,:])
+      push!(Bs, sol[2,:])
+    end
+
+    lines!(model_fit_axis, 0:0.1:200, Array(val_data_A)[1:2001], color=:black, label="S True")
+    lines!(model_fit_axis, 0:0.1:200, Array(val_data_B)[1:2001], color=:black, linestyle=:dash, label="P True")
+
+    #vspan!(model_fit_axis, [0], [selected_sampling_time], color = (:black, 0.2))
+
+    # compute the interquartile range
+    Am = hcat(As...)
+    Bm = hcat(Bs...)
+    Alow = Float64[]
+    Aup = Float64[]
+    Blow = Float64[]
+    Bup = Float64[]
+    for c in axes(Am, 1)
+      upper = quantile(Am[c,:], 0.75)
+      lower = quantile(Am[c,:], 0.25)
+      push!(Alow, lower)
+      push!(Aup, upper)
+      upper = quantile(Bm[c,:], 0.75)
+      lower = quantile(Bm[c,:], 0.25)
+      push!(Blow, lower)
+      push!(Bup, upper)
+    end
+
+    lines!(model_fit_axis, 0:0.1:200, median(Am, dims=2)[:,1], label="S ± IQR")
+    band!(model_fit_axis, 0:0.1:200, Alow, Aup, color=(colorschemes[:Egypt][1], 0.2), label="S ± IQR")
+    lines!(model_fit_axis, 0:0.1:200, median(Bm, dims=2)[:,1], label="P ± IQR")
+    band!(model_fit_axis, 0:0.1:200, Blow, Bup, color=(colorschemes[:Egypt][2], 0.2), label="P ± IQR")
+    if i == 1
+      f[2,1:3] = Legend(f, model_fit_axis, "Legend", merge=true, framevisible=false, orientation=:horizontal)
+    end
+  end
+
+  for (label, layout) in zip(["(A)", "(B)", "(C)"], [ga, gb, gc])
+    Label(layout[1, 1, TopLeft()], label,
+        fontsize = 15,
+        font = :bold,
+        padding = (0, 25, 5, 0),
+        halign = :right)
+  end
+  f
+end
+
+save("figures/others/s6_forecast_200.png", figure_model_forecasts, px_per_unit=FIGURE_RESOLUTION)
+
+# Figure S7
+rng = StableRNG(1234)
+
+# Get the data used for training to obtain initial conditions
+initial_p = [0.05, 0.2, 1.1, 0.08]
+data_A, data_B, times_A, times_B, val_data_A, val_data_B = simulate_inputs(
+  initial_p, rng)
+
+# Setup the problem
+# Define the neural network component
+U = Chain(
+    Dense(2, 3, rbf),
+    Dense(3, 3, rbf),
+    Dense(3, 3, rbf),
+    Dense(3, 1)
+)
+p_neural_init, snn = Lux.setup(rng, U)
+p_neural_init = ComponentArray(p_neural_init)
+ude_init = initial_parameters(U, 2, rng)[1].ude
+ude_init = ComponentVector{Float64}(ude = p_neural_init).ude.layer_1.bias
+# Define the hybrid model
+ude_problem = michaelismenten_ude(U, initial_p, data_A, data_B, (times_A[1], times_A[end]), snn)
+
+# Load the results
+regularization_strengths = [0.0, 1e-5, 1.0]
+time_between_samples = 5
+selected_sampling_time = 400
+michment_results = [jldopen("michaelis-menten/saved_runs_3/michaelismenten_$(λ)_$(time_between_samples)_$(selected_sampling_time).jld2") for λ in regularization_strengths]
+Vector{Float64}(michment_results[1]["parameters"][1].ude.layer_1.bias[:])
+figure_model_forecasts = let f = Figure(size=(750,300))
+
+  ga = f[1, 1] = GridLayout()
+  gb = f[1,2] = GridLayout()
+  gc = f[1,3] = GridLayout()
+
+  grids = [ga, gb, gc]
+
+  titles = ["No Regularization", "Regularization (λ = 1e-5)", "Regularization (λ = 1)"]
+
+  for (i, (res, title)) in enumerate(zip(michment_results, titles))
+    training_errors = res["training_error"]
+    best_models = partialsortperm(training_errors, 1:25)
+
+    parameters = res["parameters"][best_models]
+
+    # reformat the parameters to prevent an error in Lux not recognizing the type of the bias
+    new_parameters = []
+    for p in parameters
+      layers = []
+      for layer in keys(p.ude)
+        weight = copy(p.ude[layer].weight)
+        bias = copy(p.ude[layer].bias[:])
+        push!(layers, ComponentArray(weight=weight, bias=bias))
+      end
+
+      new_param = ComponentArray(layer_1=layers[1], layer_2=layers[2], layer_3=layers[3], layer_4=layers[4])
+
+      
+      push!(new_parameters, ComponentArray(ude=new_param))
+    end
+    
+    model_fit_axis = CairoMakie.Axis(grids[i][1,1], limits=(nothing, (-1, 2.5)), title=title, xlabel="Time [min]", ylabel = "Concentration [mM]")
+    As = []
+    Bs = []
+    for p in new_parameters
+      sol = solve(ude_problem, p=p, saveat=0.1, tspan=(0., 400.))
+      push!(As, sol[1,:])
+      push!(Bs, sol[2,:])
+    end
+
+    lines!(model_fit_axis, 0:0.1:400, Array(val_data_A)[1:4001], color=:black, label="S True")
+    lines!(model_fit_axis, 0:0.1:400, Array(val_data_B)[1:4001], color=:black, linestyle=:dash, label="P True")
+
+    #vspan!(model_fit_axis, [0], [selected_sampling_time], color = (:black, 0.2))
+
+    # compute the interquartile range
+    Am = hcat(As...)
+    Bm = hcat(Bs...)
+    Alow = Float64[]
+    Aup = Float64[]
+    Blow = Float64[]
+    Bup = Float64[]
+    for c in axes(Am, 1)
+      upper = quantile(Am[c,:], 0.75)
+      lower = quantile(Am[c,:], 0.25)
+      push!(Alow, lower)
+      push!(Aup, upper)
+      upper = quantile(Bm[c,:], 0.75)
+      lower = quantile(Bm[c,:], 0.25)
+      push!(Blow, lower)
+      push!(Bup, upper)
+    end
+
+    lines!(model_fit_axis, 0:0.1:400, median(Am, dims=2)[:,1], label="S ± IQR")
+    band!(model_fit_axis, 0:0.1:400, Alow, Aup, color=(colorschemes[:Egypt][1], 0.2), label="S ± IQR")
+    lines!(model_fit_axis, 0:0.1:400, median(Bm, dims=2)[:,1], label="P ± IQR")
+    band!(model_fit_axis, 0:0.1:400, Blow, Bup, color=(colorschemes[:Egypt][2], 0.2), label="P ± IQR")
+    if i == 1
+      f[2,1:3] = Legend(f, model_fit_axis, "Legend", merge=true, framevisible=false, orientation=:horizontal)
+    end
+  end
+
+  for (label, layout) in zip(["(A)", "(B)", "(C)"], [ga, gb, gc])
+    Label(layout[1, 1, TopLeft()], label,
+        fontsize = 15,
+        font = :bold,
+        padding = (0, 25, 5, 0),
+        halign = :right)
+  end
+  f
+end
+
+save("figures/others/s7_forecast_400.png", figure_model_forecasts, px_per_unit=FIGURE_RESOLUTION)
