@@ -1,17 +1,39 @@
+# Additional analysis of regularization for a competitive inhibition model (extension of the Michaelis-Menten model)
+using DifferentialEquations
+using Random, Statistics, LinearAlgebra
+using Lux
+using ComponentArrays
+using Optimization, OptimizationOptimisers, OptimizationOptimJL
+using StableRNGs
+using WeightInitializers
+using SciMLSensitivity
+using LineSearches
+using CairoMakie
+
 """
-michaelismenten!(du, u, p, t)
+michaelismenten_inhibition!(du, u, p, t)
 
 Ground truth model for the Michaelis-Menten kinetics model according to the following ODEs:
-    dS/dt = kS*S - (kSP*S)/(kM + S)
-    dP/dt = (kSP*S)/(kM + S) - kP*P
+    dS/dt = kS*S - (kSP*S)/(kM_app + S)
+    dP/dt = (kSP*S)/(kM_app + S) - kP*P
+    dI/dt = kP*P - e_I*I
+
+    with kM_app = kM * (1 + I/kI)
 Implementation according to the DifferentialEquations.jl API.
 """
-function michaelismenten!(du, u, p, t)
-    S, P = u
-    kS, kSP, kM, kP = p
-    du[1] = kS*S - (kSP*S)/(kM+S)
-    du[2] = (kSP*S)/(kM+S) - kP*P;
+function michaelismenten_inhibition!(du, u, p, t)
+    S, P, I = u
+    kS, kSP, kM, kP, kI, e_I = p
+
+    kM_app = kM * (1 + I/kI)
+
+    du[1] = kS*S - (kSP*S)/(kM_app+S)
+    du[2] = (kSP*S)/(kM_app+S) - kP*P
+    du[3] = kP*P - e_I*I
 end
+
+
+
 
 """
 simulate_inputs(parameters, rng; train_end=30, train_step=5, noise_level=0.05, initial_conditions=[2.0, 0.0])
