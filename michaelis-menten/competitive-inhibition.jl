@@ -221,11 +221,11 @@ fig_sol = let f = Figure(size=(750,900))
   loc_rng = StableRNG(1234)
 
   labels = [
-    ["A", "B", "C"],
-    ["D", "E", "F"],
-    ["G", "H", "I"],
-    ["J", "K", "L"],
-    ["M", "N", "O"]
+    ["(A)", "(B)", "(C)"],
+    ["(D)", "(E)", "(F)"],
+    ["(G)", "(H)", "(I)"],
+    ["(J)", "(K)", "(L)"],
+    ["(M)", "(N)", "(O)"]
   ]
   # Simulate the data
   data_S, data_P, data_I, times_S, times_P, times_I, val_data_S, val_data_P, val_data_I = simulate_inhibition_data(
@@ -295,4 +295,4 @@ fig_sol = let f = Figure(size=(750,900))
   f
 end
 
-save("figures/others/supp_inhibition.png", fig_sol, px_per_unit=4)
+save("figures/others/supp_inhibition.eps", fig_sol, px_per_unit=4)
