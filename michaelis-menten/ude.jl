@@ -197,4 +197,83 @@ function michaelismenten_loss(p̂, args)
 
     return l
 end
-  
+
+"""
+michaelismenten_inhibition_loss(p̂, args)
+
+Calculate the loss for the inhibition UDE model.
+
+Arguments:
+    - p̂: Parameters for the model
+    - args: Tuple with the model, data, time points and regularization parameter
+
+Returns:
+    - Loss
+"""
+function michaelismenten_inhibition_loss(p̂, args)
+    m, y, ts, λ = args
+    ŷ = predict(m, p̂, ts)
+    l = 0.
+    for i in axes(ŷ, 1)
+        pred = ŷ[i, :]
+        data = y[i][1:length(pred)]
+        # Squared error loss
+        l += sum(abs2, data-pred)
+    end
+
+    # Regularization term
+    ŷ_reg = predict(m, p̂, 0:800)
+    l += λ .* sum(abs2, min.(0, ŷ_reg))
+
+    return l
+end
+
+
+"""
+setup_inhibition_model_training(m, y, ts, λ, y_val, ts_val)
+
+Setup the model training function for the inhibition UDE model.
+
+Arguments:
+    - m: UDE model
+    - y: Data for the model
+    - ts: Time points for the data
+    - λ: Regularization parameter
+    - y_val: Validation data
+    - ts_val: Time points for the validation data
+
+Returns:
+    - Function that trains the UDE model given initial parameters
+"""
+function setup_inhibition_model_training(m, y, ts, λ, y_val, ts_val)
+    # Define the automatic differentiation type; we use forward mode automatic differentiation
+    adtype = Optimization.AutoForwardDiff()
+
+    # Define the optimization function
+    optf = Optimization.OptimizationFunction(michaelismenten_inhibition_loss, adtype)
+
+    # Define the function to fit the model
+    function fit_model(initial_parameters)
+       try
+            # Train with ADAM
+            optprob = Optimization.OptimizationProblem(optf, initial_parameters, (m,y,ts,λ))
+            res1 = Optimization.solve(optprob, ADAM(0.01), maxiters = 500)
+            println("First Stage successfully finished with objective value of $(res1.objective)")
+            # Train with BFGS
+            optprob2 = Optimization.OptimizationProblem(optf, res1.u, (m,y,ts,λ))
+            res2 = Optimization.solve(optprob2, Optim.BFGS(
+                linesearch=LineSearches.BackTracking(order=3), 
+                initial_stepnorm=0.01), x_tol=1e-6, f_tol=1e-6, maxiters = 1_000)
+
+            println("Optimization successfully finished with objective value of $(res2.objective)")
+            validation_loss = michaelismenten_validation(res2.u, (m,y_val,ts_val))
+            return res2.u, res2.objective, validation_loss
+       catch
+        # Prevent the optimization from quitting for all initial values if one fails
+            print("Optimization Failed... Resampling...")
+            return initial_parameters, NaN, NaN
+       end
+    end
+
+    return fit_model
+end

@@ -123,12 +123,12 @@ for (step_size, end_times) in sampling_schedules
       end
 
       # Simulate the data
-      data_A, data_B, times_A, times_B, val_data_A, val_data_B = simulate_inputs(
+      data_S, data_P, times_S, times_P, val_data_S, val_data_P = simulate_inputs(
         initial_p, loc_rng; 
         train_end = end_time, train_step=step_size, noise_level=noise_level)
       
       # Create UDE model
-      ude_problem = michaelismenten_ude(U, initial_p, data_A, data_B, (0., 100.), snn)
+      ude_problem = michaelismenten_ude(U, initial_p, data_S, data_P, (0., 100.), snn)
 
       # Set the initial parameters of the optimization
       initials = initial_parameters(U, n_starting_points, loc_rng)
@@ -136,9 +136,9 @@ for (step_size, end_times) in sampling_schedules
       # Define the optimization run
       optimizer = setup_model_training(
         ude_problem, 
-        [data_A, data_B], 
-        times_A, lambd, 
-        [val_data_A, val_data_B], 
+        [data_S, data_P], 
+        times_S, lambd, 
+        [val_data_S, val_data_P], 
         0:0.1:400)
 
       # Optimize for all initial values.
