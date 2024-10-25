@@ -276,6 +276,10 @@ fig_sol = let f = Figure(size=(750,900))
     lines!(axP, tA, val_data_P.u)
     lines!(axI, tA, val_data_I.u)
 
+    vspan!(axS, [0], [200], color = (:black, 0.2))
+    vspan!(axP, [0], [200], color = (:black, 0.2))
+    vspan!(axI, [0], [200], color = (:black, 0.2))
+
     for (label, layout) in zip(labels[i], [ga, gb, gc])
       Label(layout[1, 1, TopLeft()], label,
       fontsize = 15,
@@ -291,4 +295,4 @@ fig_sol = let f = Figure(size=(750,900))
   f
 end
 
-save("figures/others/supp_inhibition.eps", fig_sol, px_per_unit=4)
+save("figures/others/supp_inhibition.png", fig_sol, px_per_unit=4)
