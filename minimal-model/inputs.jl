@@ -1,5 +1,20 @@
 using SpecialFunctions, CSV, DataFrames
 
+"""
+load_predict_gi(glucose_file::String, insulin_file::String)
+
+Load the predict glucose and insulin data from CSV files and return data as matrices.
+
+Parameters:
+  - glucose_file: Path to the glucose data CSV file
+  - insulin_file: Path to the insulin data CSV file
+
+Returns:
+  - glucose: Glucose data as a Matrix
+  - glucose_timepoints: Time points for glucose data
+  - insulin: Insulin data as a Matrix
+  - insulin_timepoints: Time points for insulin data
+"""
 function load_predict_gi(glucose_file::String, insulin_file::String)
 
     # read glucose and insulin dataframes 
@@ -25,6 +40,19 @@ function load_predict_gi(glucose_file::String, insulin_file::String)
     glucose, glucose_timepoints, insulin, insulin_timepoints
 end
 
+"""
+insulin_interpolator(mins, insulin_timepoints)
+
+Interpolate the insulin data using cubic spline interpolation.
+
+Parameters:
+  - mins: Mean insulin data
+  - insulin_timepoints: Time points for insulin data
+
+Returns:
+  - CubicSpline object for the interpolated insulin data. Can be called with a time point to get the interpolated insulin value.
+
+"""
 function insulin_interpolator(mins, insulin_timepoints)
 
   steady_state_timepoints_start = [-60, -50, -40, -30]
@@ -37,10 +65,36 @@ function insulin_interpolator(mins, insulin_timepoints)
 
 end
 
+"""
+rate_of_appearance(σ, k, t, M, γ)
+
+Calculate the rate of appearance of glucose in the blood based on the gamma function estimation.
+
+Parameters:
+  - σ: Shape parameter for the gamma function
+  - k: Basal rate of appearance
+  - t: Time
+  - M: Total amount of glucose
+  - γ: conversion factor of glucose from mg to mmol divided by the volume of distribution 
+
+Returns:
+  - Rate of appearance of glucose in the blood at time t
+"""
 function rate_of_appearance(σ, k, t, M, γ)
   t >= 0 ? ((γ*M)/gamma(σ))* k^σ * t^(σ-1) * exp(-k*t) : 0.
 end
 
+"""
+make_minimal_model(I)
+
+Create the minimal model for the oral minimal model of glucose kinetics.
+
+Parameters:
+  - I: Insulin interpolator function
+
+Returns:
+  - oralminimalmodel! function. Can be used as the ODE function for the minimal model.
+"""
 function make_minimal_model(I)
   function oralminimalmodel!(du, u, p, t)
 
@@ -53,6 +107,23 @@ function make_minimal_model(I)
   return oralminimalmodel!
 end
 
+"""
+get_model_parameters(mglc, glucose_timepoints, mins, insulin_timepoints; VG = 18.57, fG = 0.005551, M = 85500.)
+
+Get the model parameters for the minimal model based on the glucose and insulin data.
+
+Parameters:
+  - mglc: Mean glucose data
+  - glucose_timepoints: Time points for glucose data
+  - mins: Mean insulin data
+  - insulin_timepoints: Time points for insulin data
+  - VG: Volume of distribution of glucose; default is 18.57
+  - fG: conversion factor of glucose from mg to mmol; default is 0.005551
+  - M: Total amount of glucose in meal; default is 85500.
+
+Returns:
+  - Model parameters for the minimal model based on the glucose and insulin data (p1, p2, p3)
+"""
 function get_model_parameters(mglc, glucose_timepoints, mins, insulin_timepoints; VG = 18.57, fG = 0.005551, M = 85500.)
   Gb = mglc[1][1]
   Ib = mins[1][1]

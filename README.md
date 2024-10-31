@@ -21,6 +21,8 @@ The Michaelis-Menten experiment is implemented in the `michaelis-menten` directo
 
 The folder also contains the following subdirectories:
 - `saved_runs`: Contains the results of the experiment.
+- `saved_runs_2`: Contains the results of experiment 2 (more noise)
+- `saved_runs_3`: Contains the results of the experiment with longer sampling durations (200 and 400 minutes)
 
 ### Minimal Model
 The Minimal Model experiment is implemented in the `minimal-model` directory. The code is divided into the following files:
@@ -43,9 +45,11 @@ The postprocessing code is implemented in the `post` directory. The code is divi
 
 
 ## Running the Code
-To activate the Julia environment, make sure you have Julia version 1.10 installed and run the following commands
+To activate the Julia environment, make sure you have Julia version `1.10.0` or `1.10.4` installed and run the following commands
 
 ### Installing the dependencies
+The code dependencies including their versions are included in the `Project.toml` file. When instantiating the environment, the Julia package manager automatically takes care of the appropriate versions. 
+
 1. Open the Julia REPL
 ```bash
 julia

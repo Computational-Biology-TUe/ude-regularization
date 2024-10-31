@@ -69,18 +69,21 @@ println("Initial model parameters found. Starting neural UDE optimization.")
 # Define the neural network components
 U = Chain(
     Dense(1, 3, rbf; init_weight = ude_neural_initializer),
-    Dense(3, 3, rbf; init_weight = ude_neural_initializer),
+    #Dense(3, 3, rbf; init_weight = ude_neural_initializer),
     Dense(3, 1; init_weight = ude_neural_initializer)
 )
 
+# Set the meal size and basal glucose and insulin values
 M = 85500.
 Qb = mglc[1][1]
 Ib = mins[1][1]
 I = insulin_interpolator(mins, insulin_timepoints)
 
+# setup the neural network
 nn_init, snn = Lux.setup(rng, U);
 nn_init = ComponentArray(nn_init);
 
+# define the model
 udemodel = minimalmodel_ude(Qb, Ib, M, model_parameters, I, U, snn)
 p_estim_temp = ComponentArray(nn = nn_init)
 u0 = [Qb, 0.]
@@ -89,11 +92,12 @@ UDEproblem = ODEProblem{true, SciMLBase.FullSpecialize}(udemodel,  u0, (0., 480.
 save_timepoints = 0:1:480.
 glucose_idx = findall(x -> x ∈ glucose_timepoints, save_timepoints)
 
+# for all regularization strengths run the model
 for lAUC in λ_AUC
   for lnonneg in λ_nonneg
     println("Running MSE optimizer for lAUC = $(lAUC) and lnonneg = $(lnonneg)")
 
-    if !OVERWRITE && isfile("minimal-model/saved_runs/minimalmodel_$(lAUC)_$(lnonneg).jld2")
+    if !OVERWRITE && isfile("minimal-model/saved_runs_smaller_network/minimalmodel_$(lAUC)_$(lnonneg).jld2")
       println("File already exists, skipping.")
       continue
     end
@@ -110,7 +114,7 @@ for lAUC in λ_AUC
     training_error = [r[2] for r in results]
 
     jldsave(
-          "minimal-model/saved_runs/minimalmodel_$(lAUC)_$(lnonneg).jld2";
+          "minimal-model/saved_runs_smaller_network/minimalmodel_$(lAUC)_$(lnonneg).jld2";
           parameters=parameters,
           training_error=training_error)
   end
