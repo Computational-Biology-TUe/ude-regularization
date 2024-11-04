@@ -18,7 +18,7 @@ The Michaelis-Menten experiment is implemented in the `michaelis-menten` directo
 - `inputs.jl`: Code for generating the input data for the experiment.
 - `ude.jl`: Utility functions for the Universal Differential Equation (UDE) model.
 - `main.jl`: Code for running the experiment.
-- `competitive_inhibition.jl`: Additional experiment on a more complicated competitive inhibition model
+- `competitive-inhibition.jl`: Additional experiment on a more complicated competitive inhibition model
 
 The folder also contains the following subdirectories:
 - `saved_runs`: Contains the results of the experiment.
