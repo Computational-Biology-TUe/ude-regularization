@@ -49,17 +49,7 @@ end
 rng = StableRNG(4520)
 
 # Load the data
-glucose, glucose_timepoints, insulin, insulin_timepoints = load_predict_gi("minimal-model/data/Predict-Glucose.csv", "minimal-model/data/Predict-Insulin.csv");
-
-# Only use up until 240 (first meal)
-glucose_timepoints = glucose_timepoints[1:7]
-insulin_timepoints = insulin_timepoints[1:6]
-
-glucose = Matrix{Float64}(glucose)[:, 1:7]
-insulin = Matrix{Float64}(insulin)[:, 1:6]
-
-mins = mean(insulin, dims=1)
-mglc = mean(glucose, dims=1)
+mglc, _, glucose_timepoints, mins, _, insulin_timepoints = load_predict_gi("minimal-model/data/mean_glucose.csv", "minimal-model/data/mean_insulin.csv");
 
 # Get the model parameter fits based on the current meal appearance
 println("Obtaining initial model parameters:")

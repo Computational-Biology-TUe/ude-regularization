@@ -42,3 +42,5 @@ legacy
 figures_original
 
 *smaller_network
+
+minimal-model/data/Predict*.csv

@@ -54,7 +54,7 @@ lines!(axis_example_data, 0:0.1:100, Array(val_data_B)[1:1001], label="P")
 
 axislegend()
 
-save("figures/others/example_data.png", fig_example_data, px_per_unit=FIGURE_RESOLUTION)
+#save("figures/others/example_data.png", fig_example_data, px_per_unit=FIGURE_RESOLUTION)
 
 fig_example_data
 
@@ -171,7 +171,7 @@ figure_model_forecasts = let f = Figure(size=(750,300))
   f
 end
 
-save("figures/fig_2_model_forecasts.png", figure_model_forecasts, px_per_unit=FIGURE_RESOLUTION)
+#save("figures/fig_2_model_forecasts.png", figure_model_forecasts, px_per_unit=FIGURE_RESOLUTION)
 
 ## Fig 3: Regularization Strength Distributions
 
@@ -204,7 +204,7 @@ figure_regularization_strengths = let f = Figure(size=(750,300))
 end
 
 
-save("figures/fig_3_model_regularization_strengths.png", figure_regularization_strengths, px_per_unit=FIGURE_RESOLUTION)
+#save("figures/fig_3_model_regularization_strengths.png", figure_regularization_strengths, px_per_unit=FIGURE_RESOLUTION)
 
 
 # Figure 4
@@ -262,7 +262,7 @@ figure_sampling_schedules = let f = Figure(size=(750,300))
 
 end
 
-save("figures/fig_4_sampling_schedules.png", figure_sampling_schedules, px_per_unit=FIGURE_RESOLUTION)
+#save("figures/fig_4_sampling_schedules.png", figure_sampling_schedules, px_per_unit=FIGURE_RESOLUTION)
 
 include("../minimal-model/inputs.jl")
 include("../minimal-model/ude.jl")
@@ -271,21 +271,14 @@ include("../minimal-model/ude.jl")
 rng = StableRNG(4520)
 
 # Load the data
-glucose, glucose_timepoints, insulin, insulin_timepoints = load_predict_gi("minimal-model/data/Predict-Glucose.csv", "minimal-model/data/Predict-Insulin.csv");
+mglc, stdglc, glucose_timepoints, mins, stdins, insulin_timepoints = load_predict_gi("minimal-model/data/mean_glucose.csv", "minimal-model/data/mean_insulin.csv");
 
-# Only use up until 240 (first meal)
-glucose_timepoints = glucose_timepoints[1:7]
-insulin_timepoints = insulin_timepoints[1:6]
+# mins = mean(insulin, dims=1)
+# mglc = mean(glucose, dims=1)
 
-glucose = Matrix{Float64}(glucose)[:, 1:7]
-insulin = Matrix{Float64}(insulin)[:, 1:6]
-
-mins = mean(insulin, dims=1)
-mglc = mean(glucose, dims=1)
-
-stdins = 1.96 .* std(insulin, dims=1) ./ sqrt(size(insulin, 1))
-stdglc = 1.96 .* std(glucose, dims=1) ./ sqrt(size(glucose, 1))
-
+# 903 is the amount of individuals
+stdins = 1.96 .* stdins ./ sqrt(903)
+stdglc = 1.96 .* stdglc ./ sqrt(903)
 # Get the model parameter fits based on the current meal appearance
 ode_model_parameters = get_model_parameters(mglc, glucose_timepoints, mins, insulin_timepoints)
 
@@ -380,7 +373,7 @@ for (position, parameters) in enumerate(model_parameters)
 
 end
 
-save("figures/others/minimal_model_all_fits.png", fig_model_fits, px_per_unit=FIGURE_RESOLUTION)
+#save("figures/others/minimal_model_all_fits.png", fig_model_fits, px_per_unit=FIGURE_RESOLUTION)
 
 fig_model_fit_comparison = Figure(resolution=(600,800))
 
@@ -560,7 +553,7 @@ for (label, layout) in zip(["(A)", "(B)", "(C)", "(D)", "(E)", "(F)"], [ga, gb, 
       halign = :right)
 end
 
-save("figures/fig_5_minimal_model_comparison.png", fig_model_fit_comparison, px_per_unit=FIGURE_RESOLUTION)
+#save("figures/fig_5_minimal_model_comparison.png", fig_model_fit_comparison, px_per_unit=FIGURE_RESOLUTION)
 
 fig_model_fit_comparison
 
@@ -602,7 +595,7 @@ end
 
 f
 end
-save("figures/fig_6_minimal_model_auc_comparison.png", fig_boxplot, px_per_unit=FIGURE_RESOLUTION)
+#save("figures/fig_6_minimal_model_auc_comparison.png", fig_boxplot, px_per_unit=FIGURE_RESOLUTION)
 
 # Supplementary Figures
 
@@ -700,7 +693,7 @@ figure_model_forecasts = let f = Figure(size=(550,300))
   f
 end
 
-save("figures/others/fig_s2_model_forecasts_noise.png", figure_model_forecasts, px_per_unit=FIGURE_RESOLUTION)
+#save("figures/others/fig_s2_model_forecasts_noise.png", figure_model_forecasts, px_per_unit=FIGURE_RESOLUTION)
 
 ## Fig S2: Model Forecasts with different initial conditions
 
@@ -815,7 +808,7 @@ figure_model_forecasts = let f = Figure(size=(750,300))
   f
 end
 
-save("figures/others/fig_s3_model_forecasts_initial_conditions.png", figure_model_forecasts, px_per_unit=FIGURE_RESOLUTION)
+#save("figures/others/fig_s3_model_forecasts_initial_conditions.png", figure_model_forecasts, px_per_unit=FIGURE_RESOLUTION)
 
 ## Fig S3: Model selection
 
@@ -911,7 +904,7 @@ for time_between_samples in times_between_samples
     f
   end
 
-  save("figures/fig_s4_model_regularization_strengths_$(time_between_samples).png", figure_regularization_strengths, px_per_unit=FIGURE_RESOLUTION)
+  #save("figures/fig_s4_model_regularization_strengths_$(time_between_samples).png", figure_regularization_strengths, px_per_unit=FIGURE_RESOLUTION)
 
 end
 
@@ -945,7 +938,7 @@ for time_between_samples in [20]
     f
   end
 
-  save("figures/fig_s4_model_regularization_strengths_$(time_between_samples).png", figure_regularization_strengths, px_per_unit=FIGURE_RESOLUTION)
+  #save("figures/fig_s4_model_regularization_strengths_$(time_between_samples).png", figure_regularization_strengths, px_per_unit=FIGURE_RESOLUTION)
 
 end
 
@@ -1064,7 +1057,7 @@ for (t1, t2) in time_combinations
     f
   end
 
-  save("figures/others/s5_forecast_$(t1)_$(t2).png", figure_model_forecasts, px_per_unit=FIGURE_RESOLUTION)
+  #save("figures/others/s5_forecast_$(t1)_$(t2).png", figure_model_forecasts, px_per_unit=FIGURE_RESOLUTION)
 end
 
 
@@ -1180,7 +1173,7 @@ figure_model_forecasts = let f = Figure(size=(750,300))
   f
 end
 
-save("figures/others/s6_forecast_200.png", figure_model_forecasts, px_per_unit=FIGURE_RESOLUTION)
+#save("figures/others/s6_forecast_200.png", figure_model_forecasts, px_per_unit=FIGURE_RESOLUTION)
 
 # Figure S7
 rng = StableRNG(1234)
@@ -1294,4 +1287,4 @@ figure_model_forecasts = let f = Figure(size=(750,300))
   f
 end
 
-save("figures/others/s7_forecast_400.png", figure_model_forecasts, px_per_unit=FIGURE_RESOLUTION)
+#save("figures/others/s7_forecast_400.png", figure_model_forecasts, px_per_unit=FIGURE_RESOLUTION)
