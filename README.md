@@ -18,11 +18,13 @@ The Michaelis-Menten experiment is implemented in the `michaelis-menten` directo
 - `inputs.jl`: Code for generating the input data for the experiment.
 - `ude.jl`: Utility functions for the Universal Differential Equation (UDE) model.
 - `main.jl`: Code for running the experiment.
+- `competitive_inhibition.jl`: Additional experiment on a more complicated competitive inhibition model
 
 The folder also contains the following subdirectories:
 - `saved_runs`: Contains the results of the experiment.
 - `saved_runs_2`: Contains the results of experiment 2 (more noise)
 - `saved_runs_3`: Contains the results of the experiment with longer sampling durations (200 and 400 minutes)
+- `saved_runs_ci`: Contains the results of the competitive inhibition experiment.
 
 ### Minimal Model
 The Minimal Model experiment is implemented in the `minimal-model` directory. The code is divided into the following files:
